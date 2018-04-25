@@ -1,13 +1,7 @@
 require("dotenv").config();
-
 var keys = require("./keys");
-
-// console.log(keys);
-
 var Twitter = require("twitter");
-
-var Spotify = require("spotify");
-
+var Spotify = require("node-spotify-api");
 var request = require("request");
 
 var getMyTweets=function(){
@@ -18,7 +12,6 @@ var getMyTweets=function(){
       console.log(error);
     }
     if (!error) {
-      // console.log(tweets);
       for(var i=0;i<tweets.length;i++){
         console.log(tweets[i].created_at);
         console.log('');
@@ -34,7 +27,11 @@ var getArtistName = function(artist) {
 
 
 var getMySpotify = function(songName) {
-  Spotify.search({
+  var spotify = new Spotify({
+    id: keys.spotify.id,
+    secret:keys.spotify.secret,
+  });
+  spotify.search({
       type: 'track',
       query: songName,
     },
@@ -43,6 +40,7 @@ var getMySpotify = function(songName) {
         console.log(err);
         return;
       }
+      // console.log(data);
       var songs = data.tracks.items;
       for (var i = 0; i < songs.length; i++) {
         console.log(i);
@@ -59,18 +57,19 @@ var getMySpotify = function(songName) {
     });
 }
 
-// var getMySpotify=function(songName){
-// SpotifyWebApi.search({ type: 'track', query: 'songName' }, function(err, data) {
-//     if ( err ) {
-//         console.log('Error occurred: ' + err);
-//         return;
-//     }
-//     console.log(data);
-// });
-  
-    
-// }     
-
+var getMyMovies=function(){
+  request('http://www.omdbapi.com/?t=pulp+fiction', function (error, response, body) {
+    if(!error && response.statusCode == 200) {
+      console.log(body);
+}
+  })
+}
+var runCommand=function(){
+  fs.readFile('random.txt', 'UTF8',function(err, data) {
+    if (err) throw err;
+    console.log(data);
+  });
+}
 
 var pick=function(caseData,functionData){
   switch(caseData){
@@ -79,6 +78,8 @@ var pick=function(caseData,functionData){
     break;
     case "spotify-this-song":
     getMySpotify(functionData);
+    case "movie-this":
+    getMyMovies(functionData);
     default:
     console.log('LIRI does not know that');
    }
